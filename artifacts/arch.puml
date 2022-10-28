@@ -1,0 +1,65 @@
+	
+
+@startuml
+
+
+node "Mobile Phone" as MobilePhone{
+  node "Vehicle Apps" {
+    component "Example Vehicle App" as OffboardApp
+  }
+}
+
+
+cloud "DigitalTwin" as DigitalTwin{
+  node "Offboard Vehicle Services" as OffboardService{
+    component "Offboard Vehicle Signal Server" as VSSOffboard
+    component "Example: Vehicle Service in Cloud" as VServOffboard
+   } 
+    VServOffboard -u-> VSSOffboard : Alt1 : VSS API
+    OffboardApp -> VSSOffboard : VSS API
+    OffboardApp -> VServOffboard : VSDL API
+    
+}
+
+node "Vehicle Computer" as VehicleComputer{
+
+  node "Onboard Vehicle Services" as OnboardService{
+    component "Onboard Vehicle Signal Server" as VSSOnboard
+    component "Example: Proxy for Vehicle Service In Cloud" as VServProxyOnboard
+    component "Example: Vehicle Service in Vehicle Computer" as VServ2
+  }
+    component "Gateway" as Gateway
+    component "Sensor" as OnboardSensor
+    component "Actuator" as OnboardActuator
+    component "Example Vehicle App" as OnboardApp
+    VSSOffboard <--> VSSOnboard : Data Synchronization
+    VServOffboard --> VSSOnboard : Alt2: VSS API
+    VServOffboard --> VServProxyOnboard : Alt3: VSDL API
+    VServProxyOnboard -u-> VSSOnboard : VSS API
+    VServ2 -u-> VSSOnboard : VSS API
+    VSSOnboard <-- OnboardSensor
+    VSSOnboard <--> OnboardActuator
+    VServProxyOnboard <--> OnboardActuator
+    VServ2 <--> OnboardActuator
+    VSSOnboard <--> Gateway
+    VServProxyOnboard <--> Gateway
+    VServ2 <--> Gateway
+    OnboardApp -> VSSOnboard : VSS API
+    OnboardApp --> VServ2 : VSDL API
+}
+
+
+node "Other ECUS" as OtherECUS{
+    component "CAN Network" as CAN
+    component "SOME/IP Network" as SOMEIP
+    component "Sensor" as OnboardOtherSensor
+    component "Actuator" as OnboardOtherActuator
+    Gateway <-d-> CAN
+    Gateway <-d-> SOMEIP
+    CAN <-- OnboardOtherSensor
+    CAN <--> OnboardOtherActuator
+}
+
+
+
+@enduml
